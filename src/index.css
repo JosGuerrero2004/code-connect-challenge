@@ -1,23 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;700&display=swap');
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;700&display=swap');
 
 @theme {
-  --color-verdeDestaque: '#81FE88';
-  --color-verdePastel: '#BFFFC3';
-  --color-verdePetroleo: '#132E35';
-  --color-grafito: '#01080E';
-  --color-grisOscuro: '#171D1F';
-  --color-gris: '#3E3E3F';
-  --color-grisMedio: '#888888';
-  --color-grisClaro: '#BCBCBC';
-  --color-offwhite: '#E1E1E1';
-  --color-blanco: '#FFFFFF';
+  /* Colores personalizados */
+  --color-verdeDestaque: #81fe88;
+  --color-verdePastel: #bfffc3;
+  --color-verdePetroleo: #132e35;
+  --color-grafito: #01080e;
+  --color-grisOscuro: #171d1f;
+  --color-gris: #3e3e3f;
+  --color-grisMedio: #888888;
+  --color-grisClaro: #bcbcbc;
+  --color-offwhite: #e1e1e1;
+  --color-blanco: #ffffff;
+
+  /* Font family */
+  --font-family-prompt: 'Prompt', sans-serif;
 }
 
-:root {
-  --bg: #01080e;
-}
-
+/* Estilos base */
 html,
 body,
 #root {
@@ -25,9 +26,12 @@ body,
 }
 
 body {
-  @apply bg-grafito text-offwhite font-prompt;
+  margin: 0;
+  font-family: var(--font-family-prompt);
+  background-color: #01080e;
+  color: #e1e1e1;
   background-image:
-    radial-gradient(ellipse at 20% 20%, rgba(19, 46, 53, 0.3), transparent 10%),
-    radial-gradient(ellipse at 80% 80%, rgba(8, 16, 14, 0.45), transparent 15%);
-  background-blend-mode: overlay;
+    radial-gradient(ellipse at 20% 20%, rgba(19, 46, 53, 0.3), transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(8, 16, 14, 0.45), transparent 50%);
+  background-attachment: fixed;
 }

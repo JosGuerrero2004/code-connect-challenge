@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import Feed from './pages/Feed'
-import Login from './features/auth/pages/Login'
-import Register from './pages/Register'
+import Login from './features/auth/pages/LoginPage'
+import Register from './features/auth/pages/RegisterPage'
 import Publicar from './pages/Publicar'
 import Logout from './features/auth/pages/Logout'
 
