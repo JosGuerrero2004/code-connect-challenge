@@ -1,28 +1,42 @@
 import { Home, Info, LogIn, LogOut, Search, User } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import NavbarLink from './NavbarLink'
 import SearchBar from './SearchBar'
-import { useAppSelector } from '../../hooks/reduxHooks'
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks'
+import { filterBySearch } from '../../features/projects/projectsSlice'
 
-function Navbar() {
+interface Props {
+  showSearchBar?: boolean
+  setShowSearchBar?: (value: boolean) => void
+}
+
+function Navbar({ showSearchBar, setShowSearchBar }: Props) {
   const location = useLocation()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const [showSearchBar, setShowSearchBar] = useState(false)
+  const [internalSearchBar, setInternalSearchBar] = useState(false)
+  const dispatch = useAppDispatch()
 
+  useEffect(() => {
+    dispatch(filterBySearch(query))
+  }, [query, dispatch])
+
+  // Usa los props si existen, si no usa el estado interno
+  const isSearchBarVisible = showSearchBar ?? internalSearchBar
+
+  const toggleSearchBar = () => {
+    if (setShowSearchBar) {
+      setShowSearchBar(!isSearchBarVisible)
+    } else {
+      setInternalSearchBar(!internalSearchBar)
+    }
+  }
   const user = useAppSelector((state) => state.auth.user)
   const isAuthenticated = !!user
 
   const showSearch = location.pathname === '/feed'
 
-  const handleAuthAction = () => {
-    if (isAuthenticated) {
-      navigate('/logout')
-    } else {
-      navigate('/login')
-    }
-  }
   return (
     <>
       {/* Desktop Sidebar */}
@@ -39,29 +53,24 @@ function Navbar() {
             </button>
           )}
         </div>
-
         {/* Barra de búsqueda en desktop (solo en feed) */}
         {showSearch && (
           <div className='mb-6'>
             <SearchBar value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
         )}
-
         {/* Enlaces de navegación */}
         <ul className='flex flex-col gap-2 flex-1'>
           <NavbarLink to='/feed' icon={<Home size={20} />} label='Feed' />
           {isAuthenticated && <NavbarLink to='/perfil' icon={<User size={20} />} label='Perfil' />}
           <NavbarLink to='/sobre-nosotros' icon={<Info size={20} />} label='Sobre nosotros' />
         </ul>
-
         {/* Botón Salir/Entrar */}
-        <button
-          onClick={handleAuthAction}
-          className='flex items-center gap-3 px-4 py-3 text-grisClaro hover:text-verdeDestaque hover:bg-grisOscuro/50 rounded-lg transition-colors'
-        >
-          {isAuthenticated ? <LogOut size={20} /> : <LogIn size={20} />}
-          <span className='text-sm'>{isAuthenticated ? 'Salir' : 'Entrar'}</span>
-        </button>
+        {isAuthenticated ? (
+          <NavbarLink icon={<LogOut />} label='Salir' to='/logout' />
+        ) : (
+          <NavbarLink icon={<LogIn />} label='Entrar' to='/login' />
+        )}
       </nav>
 
       {/* Mobile Bottom Navigation */}
@@ -70,22 +79,20 @@ function Navbar() {
           <NavbarLink to='/feed' icon={<Home size={22} />} label='Feed' />
           {showSearch && (
             <button
-              onClick={() => setShowSearchBar(!showSearchBar)}
+              onClick={() => toggleSearchBar()}
               className='flex flex-col items-center gap-1 text-grisClaro hover:text-verdeDestaque transition-colors'
             >
               <Search size={22} />
-              <span className='text-xs'>Buscar</span>
+              <span className='hidden md:inline text-sm font-medium'>Buscar</span>
             </button>
           )}
           {isAuthenticated && <NavbarLink to='/perfil' icon={<User size={22} />} label='Perfil' />}
-          <NavbarLink to='/sobre-nosotros' icon={<Info size={22} />} label='Sobre nós' />
-          <button
-            onClick={handleAuthAction}
-            className='flex flex-col items-center gap-1 text-grisClaro hover:text-verdeDestaque transition-colors'
-          >
-            {isAuthenticated ? <LogOut size={22} /> : <LogIn size={22} />}
-            <span className='text-xs'>{isAuthenticated ? 'Salir' : 'Entrar'}</span>
-          </button>
+          <NavbarLink to='/sobre-nosotros' icon={<Info size={22} />} label='Sobre nosotros' />
+          {isAuthenticated ? (
+            <NavbarLink icon={<LogOut />} label='Salir' to='/logout' />
+          ) : (
+            <NavbarLink icon={<LogIn />} label='Entrar' to='/login' />
+          )}
         </ul>
       </nav>
 
@@ -104,7 +111,7 @@ function Navbar() {
         </div>
 
         {/* Barra de búsqueda mobile (desplegable) */}
-        {showSearch && showSearchBar && (
+        {showSearch && isSearchBarVisible && (
           <div className='mt-3 animate-in slide-in-from-top duration-200'>
             <SearchBar value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
