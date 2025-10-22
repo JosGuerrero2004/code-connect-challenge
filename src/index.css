@@ -35,3 +35,9 @@ body {
     radial-gradient(ellipse at 80% 80%, rgba(8, 16, 14, 0.45), transparent 50%);
   background-attachment: fixed;
 }
+
+@layer components {
+  .filter-btn {
+    @apply m-1 bg-grisOscuro text-offwhite px-3 py-1.5 rounded-md text-sm hover:bg-verdePetroleo transition flex items-center gap-2;
+  }
+}
