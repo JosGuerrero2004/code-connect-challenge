@@ -1,7 +1,7 @@
 export interface User {
   uid: string
-  email: string | null
-  displayName?: string | null
+  email: string
+  userProfile?: UserProfile | null
 }
 export interface AuthState {
   user: User | null
@@ -15,7 +15,7 @@ export interface UserProfile {
   displayName: string
   email: string
   bio: string
-  photoURL: string
+  photoURL: string | null
   followers: number
   following: number
   createdAt: string
