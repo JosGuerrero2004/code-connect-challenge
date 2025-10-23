@@ -72,7 +72,7 @@ const projectsSlice = createSlice({
         (p) =>
           p.title.toLocaleLowerCase().includes(query) ||
           p.description.toLocaleLowerCase().includes(query) ||
-          p.author.toLowerCase().includes(query)
+          p.authorDisplayName.toLowerCase().includes(query)
       )
     },
 

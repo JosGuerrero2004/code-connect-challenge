@@ -8,3 +8,15 @@ export interface AuthState {
   loading: boolean
   error: string | null
 }
+
+export interface UserProfile {
+  uid: string
+  username: string
+  displayName: string
+  email: string
+  bio: string
+  photoURL: string
+  followers: number
+  following: number
+  createdAt: string
+}

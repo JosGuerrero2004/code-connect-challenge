@@ -6,6 +6,7 @@ import Logout from './features/auth/pages/Logout'
 import RequireAuth from './routes/RequireAuth'
 import SobreNosotros from './pages/SobreNosotros'
 import FeedPage from './features/projects/pages/FeedPage'
+import ProjectPage from './features/projects/pages/ProjectPage'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/logout' element={<Logout />} />
         <Route path='/register' element={<Register />} />
+        <Route path='/project/:id' element={<ProjectPage />} />
         <Route path='*' element={<h1>404 Not found</h1>} />
       </Routes>
     </>

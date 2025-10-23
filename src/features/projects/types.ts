@@ -3,9 +3,15 @@ export interface Project {
   title: string
   description: string
   tags: string[]
-  author: string
+  banner?: string
+  authorId: string
+  authorUsername: string
+  authorDisplayName: string
+  authorPhoto: string
+  likes: number
+  commentsCount: number
+  shares: number
   createdAt: string
-  banner: string
 }
 
 export interface ProjectsState {
