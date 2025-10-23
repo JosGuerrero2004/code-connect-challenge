@@ -1,14 +1,22 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { Project, ProjectsState } from '../../features/projects/types'
-import { collection, getDocs, orderBy, query } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '../../config/firebase'
 
 const initialState: ProjectsState = {
   items: [],
   filtered: [],
-  loading: false,
+  viewed: [],
   error: null,
   activeTags: [],
+  selectedProject: null,
+  hasFetched: false,
+  status: 'idle',
+}
+
+const setSelectedProjectLocal = (state: ProjectsState, action: PayloadAction<Project>) => {
+  if (!state.viewed.includes(action.payload)) state.viewed.push(action.payload)
+  state.selectedProject = action.payload
 }
 
 export const fetchProjects = createAsyncThunk('projects/fetch', async () => {
@@ -33,10 +41,27 @@ export const fetchProjects = createAsyncThunk('projects/fetch', async () => {
   }
 })
 
+export const fetchProjectById = createAsyncThunk(
+  'projects/fetchProjectById',
+  async (projectId: string) => {
+    const projectRef = doc(db, 'projects', projectId)
+    const projectDoc = await getDoc(projectRef)
+    if (!projectDoc.exists()) {
+      throw new Error('Proyecto no encontrado')
+    }
+    return {
+      id: projectDoc.id,
+      ...projectDoc.data(),
+      createdAt: projectDoc.data().createdAt?.toDate().toISOString(),
+    } as Project
+  }
+)
+
 const projectsSlice = createSlice({
   name: 'projects',
   initialState,
   reducers: {
+    setSelectedProject: setSelectedProjectLocal,
     addFilterTag: (state, action: PayloadAction<string>) => {
       if (action.payload === 'all') {
         state.activeTags = ['all']
@@ -84,20 +109,39 @@ const projectsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // FetchProjects
       .addCase(fetchProjects.pending, (state) => {
-        state.loading = true
+        state.status = 'loading'
       })
       .addCase(fetchProjects.fulfilled, (state, action) => {
-        state.loading = false
+        state.status = 'succeeded'
         state.items = action.payload
-        state.filtered = action.payload
+        if (state.filtered.length === 0) {
+          state.filtered = action.payload
+        }
+        state.hasFetched = true
       })
       .addCase(fetchProjects.rejected, (state) => {
-        state.loading = false
+        state.status = 'failed'
         state.error = 'Error al cargar proyectos'
+      })
+      // Fetch Project By Id
+      .addCase(fetchProjectById.pending, (state) => {
+        state.status = 'loading'
+        state.error = null
+      })
+      .addCase(fetchProjectById.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.selectedProject = action.payload
+        setSelectedProjectLocal(state, action)
+      })
+      .addCase(fetchProjectById.rejected, (state) => {
+        state.status = 'failed'
+        state.error = 'Error al cargar el proyecto seleccionado, proyecto no existe'
       })
   },
 })
 
-export const { addFilterTag, removeFilterTag, filterBySearch, sortRecent } = projectsSlice.actions
+export const { setSelectedProject, addFilterTag, removeFilterTag, filterBySearch, sortRecent } =
+  projectsSlice.actions
 export default projectsSlice.reducer

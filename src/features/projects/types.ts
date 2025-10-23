@@ -17,7 +17,10 @@ export interface Project {
 export interface ProjectsState {
   items: Project[]
   filtered: Project[]
-  loading: boolean
+  viewed: Project[]
   error: string | null
   activeTags: string[]
+  selectedProject: Project | null
+  hasFetched: boolean
+  status: 'idle' | 'loading' | 'succeeded' | 'failed'
 }

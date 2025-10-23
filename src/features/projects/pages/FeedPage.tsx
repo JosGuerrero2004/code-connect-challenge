@@ -8,14 +8,16 @@ import MainLayout from '../../../components/MainLayout'
 
 const FeedPage = () => {
   const dispatch = useAppDispatch()
-  const { filtered, loading } = useAppSelector((state) => state.projects)
+  const { filtered, status, hasFetched } = useAppSelector((state) => state.projects)
   const location = useLocation()
   const navigate = useNavigate()
   const [showSearchBar, setShowSearchBar] = useState(false)
 
   useEffect(() => {
-    dispatch(fetchProjects())
-  }, [dispatch])
+    if (!hasFetched) {
+      dispatch(fetchProjects())
+    }
+  }, [dispatch, hasFetched])
 
   const searchParams = new URLSearchParams(location.search)
   const searchQuery = searchParams.get('q')
@@ -39,7 +41,7 @@ const FeedPage = () => {
 
         <FilterBar />
 
-        {loading ? (
+        {status === 'loading' ? (
           <p className='text-grisClaro'>Cargando proyectos...</p>
         ) : (
           <div className='grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6'>

@@ -1,6 +1,8 @@
-import { Code2, MessageSquare, Share2 } from 'lucide-react'
+import { Code2 } from 'lucide-react'
 import type { Project } from '../types'
 import { Link } from 'react-router-dom'
+import ActionButtonsStats from './ActionButtonsStats'
+import ProfileProjectAuthor from './ProfileProjectAuthor'
 
 type Props = { project: Project }
 
@@ -51,62 +53,8 @@ const ProjectCard = ({ project }: Props) => {
 
         {/* Footer with stats and author */}
         <div className='flex items-center justify-between pt-4 border-t border-slate-700/50'>
-          {/* Author and date */}
-          <div className='flex items-center gap-3'>
-            {project.authorPhoto ? (
-              <img
-                src={project.authorPhoto}
-                alt={`Foto de perfil de ${project.authorDisplayName}`}
-                className='w-8 h-8 md:w-10 md:h-10 rounded-full'
-              />
-            ) : (
-              <div className='w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-verdeDestaque to-teal-500 flex items-center justify-center text-white font-semibold text-sm'>
-                {project.authorDisplayName.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div className='flex flex-col'>
-              <span className='text-sm text-slate-300 font-medium'>
-                {project.authorDisplayName}
-              </span>
-              <span className='text-xs text-slate-500'>
-                {new Date(project.createdAt).toLocaleDateString('es-ES', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                })}
-              </span>
-            </div>
-          </div>
-
-          {/* Action buttons/stats */}
-          <div className='flex items-center gap-4 md:gap-5'>
-            {/* Code/Tech likes button */}
-            <button
-              className='flex items-center gap-1.5 text-slate-400 hover:text-verdeDestaque transition-colors group'
-              title='Code likes'
-            >
-              <Code2 className='w-4 h-4 md:w-5 md:h-5' />
-              <span className='text-xs md:text-sm font-medium'>{project.likes}</span>
-            </button>
-
-            {/* Comments button */}
-            <button
-              className='flex items-center gap-1.5 text-slate-400 hover:text-blue-400 transition-colors group'
-              title='Comentarios'
-            >
-              <MessageSquare className='w-4 h-4 md:w-5 md:h-5' />
-              <span className='text-xs md:text-sm font-medium'>{project.commentsCount}</span>
-            </button>
-
-            {/* Share button */}
-            <button
-              className='flex items-center gap-1.5 text-slate-400 hover:text-purple-400 transition-colors group'
-              title='Compartir'
-            >
-              <Share2 className='w-4 h-4 md:w-5 md:h-5' />
-              <span className='text-xs md:text-sm font-medium'>{project.shares}</span>
-            </button>
-          </div>
+          <ProfileProjectAuthor project={project} />
+          <ActionButtonsStats project={project} />
         </div>
       </div>
     </div>
