@@ -24,3 +24,21 @@ export interface ProjectsState {
   hasFetched: boolean
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
 }
+
+export interface CommentsState {
+  projectId: string
+  comments: CommentNode[]
+  error: string | null
+  status: 'idle' | 'loading' | 'succeeded' | 'failed'
+}
+
+export interface CommentNode {
+  id: string
+  content: string
+  createdAt: string
+  userId: string
+  username: string
+  photoURL: string
+  replies: CommentNode[]
+  replyingTo: string
+}
