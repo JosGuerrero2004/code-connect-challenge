@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 
 interface CommentItemProps {
   comment: CommentNode
-  onReply: (commentId: string, content: string) => void
+  onReply: (commentId: string, replyingToUsername: string, content: string) => void
   level?: number
 }
 
@@ -15,7 +15,7 @@ function CommentItem({ comment, onReply, level = 0 }: CommentItemProps) {
 
   const handleSubmitReply = () => {
     if (replyContent.trim()) {
-      onReply(comment.id, replyContent)
+      onReply(comment.id, comment.username, replyContent)
       setReplyContent('')
       setIsReplying(false)
     }
