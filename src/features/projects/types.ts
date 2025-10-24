@@ -40,5 +40,6 @@ export interface CommentNode {
   username: string
   photoURL: string
   replies: CommentNode[]
-  replyingTo: string
+  replyingTo?: string | null
+  replyingToUsername?: string | null
 }

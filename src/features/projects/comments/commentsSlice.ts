@@ -16,8 +16,9 @@ interface NewCommentInput {
   content: string
   userId: string
   username: string
-  photoURL: string
+  photoURL: string | null
   replyingTo?: string | null
+  replyingToUsername?: string | null
 }
 
 async function addCommentProject({
@@ -27,6 +28,7 @@ async function addCommentProject({
   username,
   photoURL,
   replyingTo = null,
+  replyingToUsername = null,
 }: NewCommentInput): Promise<void> {
   try {
     const commentsRef = collection(db, `projects/${projectId}/comments`)
@@ -36,6 +38,7 @@ async function addCommentProject({
       username,
       photoURL,
       replyingTo,
+      replyingToUsername: replyingToUsername,
       createdAt: serverTimestamp(),
     })
   } catch (error) {
