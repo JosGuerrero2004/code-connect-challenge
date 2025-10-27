@@ -1,12 +1,12 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
-import { db } from '../../../config/firebase'
-import { fetchProjectsByUserIdFunc } from '../../projects/services/projectService'
+import {
+  fetchProjectsByIds,
+  fetchProjectsByUserIdFunc,
+} from '../../projects/services/projectService'
 import type { RootState } from '../../../redux/store/store'
-import type { User, UserProfile } from '../types/auth'
 
 export const fetchUserProjects = createAsyncThunk(
-  'auth/fetchUsersProjects',
+  'userProfile/fetchUsersProjects',
   async (_, { rejectWithValue, getState }) => {
     const state = getState() as RootState
     const user = state.auth.user
@@ -26,58 +26,63 @@ export const fetchUserProjects = createAsyncThunk(
   }
 )
 
-export async function fetchUserProfile(uid: string): Promise<UserProfile | null> {
-  try {
-    const userProfileRef = doc(db, 'users', uid)
-    const userProfileDoc = await getDoc(userProfileRef)
+export const fetchUserLikedProjects = createAsyncThunk(
+  'userProfile/fetchLikedProjects',
+  async (_, { rejectWithValue, getState }) => {
+    const state = getState() as RootState
+    const user = state.auth.user
 
-    if (!userProfileDoc.exists()) {
-      console.warn(`Perfil no encontrado para UID: ${uid}`)
-      return null
+    if (!user) {
+      return rejectWithValue('Usuario no autenticado')
     }
 
-    const data = userProfileDoc.data()
-    return {
-      uid,
-      ...data,
-      createdAt: data.createdAt?.toDate().toISOString(),
-    } as UserProfile
-  } catch (error) {
-    console.error('Error al obtener perfil de usuario:', error)
-    return null
-  }
-}
+    if (!user.userProfile) {
+      return rejectWithValue('Este usuario no tiene Perfil de usuario')
+    }
 
-interface CreateUserProfileData {
-  username: string
-  displayName: string
-  bio: string
-  photoURL: string | null
-}
+    if (!user.userProfile.likedProjects?.ids?.length) {
+      return rejectWithValue('Este usuario no tiene proyectos guardados')
+    }
 
-export async function createUserProfile(
-  user: User,
-  userProfileData?: CreateUserProfileData
-): Promise<void> {
-  if (!userProfileData) {
-    userProfileData = {
-      username: user.email?.split('@')[0],
-      displayName: user.email?.split('@')[0],
-      bio: '',
-      photoURL: null,
+    try {
+      const projects = await fetchProjectsByIds(user.userProfile.likedProjects.ids)
+
+      return projects
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue(error.message || 'Error al obtener proyectos guardados del usuario')
+      }
     }
   }
-  try {
-    const userProfileRef = doc(db, 'users', user.uid)
-    await setDoc(userProfileRef, {
-      email: user.email,
-      createdAt: serverTimestamp(),
-      ...userProfileData,
-      followers: 0,
-      following: 0,
-    })
-  } catch (error) {
-    console.error('Error al crear perfil del usuario:', error)
-    throw error
+)
+
+export const fetchUserSharedProjects = createAsyncThunk(
+  'userProfile/fetchSharedProjects',
+  async (_, { rejectWithValue, getState }) => {
+    const state = getState() as RootState
+    const user = state.auth.user
+
+    if (!user) {
+      return rejectWithValue('Usuario no autenticado')
+    }
+
+    if (!user.userProfile) {
+      return rejectWithValue('Este usuario no tiene Perfil de usuario')
+    }
+
+    if (!user.userProfile.sharedProjects?.ids?.length) {
+      return rejectWithValue('Este usuario no tiene proyectos compartidos')
+    }
+
+    try {
+      const projects = await fetchProjectsByIds(user.userProfile.sharedProjects?.ids)
+      return projects
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue(
+          error.message || 'Error al obtener proyectos compartidos del usuario'
+        )
+      }
+    }
   }
-}
+)

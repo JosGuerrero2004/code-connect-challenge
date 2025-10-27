@@ -1,6 +1,7 @@
 import type { Project } from '../../../features/projects/types'
 import { collection, doc, getDoc, getDocs, query, QueryConstraint, where } from 'firebase/firestore'
 import { db } from '../../../config/firebase'
+
 export async function fetchProjectsByUserIdFunc(authorId: string): Promise<Project[]> {
   const queryConstraints: QueryConstraint[] = []
   const projectsCollection = collection(db, 'pojects')

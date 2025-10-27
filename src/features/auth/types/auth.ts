@@ -7,7 +7,7 @@ export interface User {
 }
 export interface AuthState {
   user: User | null
-  loading: boolean
+  status: 'idle' | 'loading' | 'succeeded' | 'failed'
   error: string | null
 }
 
@@ -25,13 +25,13 @@ export interface UserProfile {
   ownedProjects: Project[] | null
 
   likedProjects: {
-    ids: string[]
-    list: Project[]
+    ids: string[] | null
+    list: Project[] | null
   } | null
 
   sharedProjects: {
-    ids: string[]
-    list: Project[]
+    ids: string[] | null
+    list: Project[] | null
   } | null
 
   createdCount: number

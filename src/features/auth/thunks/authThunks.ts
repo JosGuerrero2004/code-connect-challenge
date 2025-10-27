@@ -6,7 +6,7 @@ import {
   signOut,
 } from 'firebase/auth/cordova'
 import { auth } from '../../../config/firebase'
-import { createUserProfile, fetchUserProfile } from './userProfileThunks'
+import { createUserProfile, fetchUserProfile } from '../services/userProfileService'
 import type { User } from '../types/auth'
 
 export const registerUser = createAsyncThunk(
