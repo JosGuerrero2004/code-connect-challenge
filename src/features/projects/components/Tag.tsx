@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks'
-import { addFilterTag, removeFilterTag } from '../projectsSlice'
+import { addFilterTag, removeFilterTag } from '../redux/projectsSlice'
 
 type Props = {
   name: string

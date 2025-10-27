@@ -1,3 +1,5 @@
+import type { Project } from '../../projects/types'
+
 export interface User {
   uid: string
   email: string
@@ -19,4 +21,18 @@ export interface UserProfile {
   followers: number
   following: number
   createdAt: string
+
+  ownedProjects: Project[] | null
+
+  likedProjects: {
+    ids: string[]
+    list: Project[]
+  } | null
+
+  sharedProjects: {
+    ids: string[]
+    list: Project[]
+  } | null
+
+  createdCount: number
 }

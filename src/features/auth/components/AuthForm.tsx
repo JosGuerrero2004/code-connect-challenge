@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks'
 import { useNavigate } from 'react-router-dom'
-import { loginUser, registerUser } from '../authSlice'
+import { registerUser, loginUser } from '../thunks/authThunks'
 
 type FormValues = {
   email: string

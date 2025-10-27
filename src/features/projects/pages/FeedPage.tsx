@@ -1,10 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks'
 import { useEffect, useState } from 'react'
-import { fetchProjects, filterBySearch } from '../projectsSlice'
 import FilterBar from '../components/FilterBar'
 import ProjectCard from '../components/ProjectCard'
 import MainLayout from '../../../components/MainLayout'
+import { filterBySearch } from '../redux/projectsSlice'
+import { fetchProjects } from '../thunks/projectThunks'
 
 const FeedPage = () => {
   const dispatch = useAppDispatch()

@@ -7,10 +7,12 @@ import RequireAuth from './routes/RequireAuth'
 import SobreNosotros from './pages/SobreNosotros'
 import FeedPage from './features/projects/pages/FeedPage'
 import ProjectPage from './features/projects/pages/ProjectPage'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
   return (
     <>
+      <ToastContainer />
       <Routes>
         <Route path='/' element={<FeedPage />} />
         <Route path='/feed' element={<FeedPage />} />

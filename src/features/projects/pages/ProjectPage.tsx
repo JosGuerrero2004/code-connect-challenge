@@ -1,7 +1,7 @@
 import { useLocation, useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks'
 import MainLayout from '../../../components/MainLayout'
-import { fetchProjectById, setSelectedProject } from '../projectsSlice'
+import { fetchProjectById, setSelectedProject } from '../redux/projectsSlice'
 import { useEffect } from 'react'
 import { fetchComments } from '../comments/commentsSlice'
 import CommentsSection from '../comments/components/CommentsSection'

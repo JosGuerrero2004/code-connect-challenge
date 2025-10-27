@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import NavbarLink from './NavbarLink'
 import SearchBar from './SearchBar'
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks'
-import { filterBySearch } from '../../features/projects/projectsSlice'
+import { filterBySearch } from '../../features/projects/redux/projectsSlice'
 
 interface Props {
   showSearchBar?: boolean

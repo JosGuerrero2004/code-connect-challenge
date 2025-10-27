@@ -1,5 +1,5 @@
 import { useAppDispatch } from '../../../hooks/reduxHooks'
-import { sortRecent } from '../projectsSlice'
+import { sortRecent } from '../redux/projectsSlice'
 import Tag from './Tag'
 
 const FilterBar = () => {

@@ -1,7 +1,6 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { Project, ProjectsState } from '../../features/projects/types'
-import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore'
-import { db } from '../../config/firebase'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import type { Project, ProjectsState } from '../../../features/projects/types'
+import { fetchProjectById, fetchProjects } from '../thunks/projectThunks'
 
 const initialState: ProjectsState = {
   items: [],
@@ -18,44 +17,6 @@ const setSelectedProjectLocal = (state: ProjectsState, action: PayloadAction<Pro
   if (!state.viewed.includes(action.payload)) state.viewed.push(action.payload)
   state.selectedProject = action.payload
 }
-
-export const fetchProjects = createAsyncThunk('projects/fetch', async () => {
-  try {
-    const projectsRef = collection(db, 'projects')
-    const q = query(projectsRef, orderBy('createdAt', 'desc'))
-    const querySnapshot = await getDocs(q)
-
-    const projects: Project[] = querySnapshot.docs.map((doc) => {
-      const data = doc.data()
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: data.createdAt?.toDate().toISOString(),
-      } as Project
-    })
-
-    return projects
-  } catch (error) {
-    console.error('Error al obtener proyectos', error)
-    throw new Error('No se pudieron cargar los proyectos')
-  }
-})
-
-export const fetchProjectById = createAsyncThunk(
-  'projects/fetchProjectById',
-  async (projectId: string) => {
-    const projectRef = doc(db, 'projects', projectId)
-    const projectDoc = await getDoc(projectRef)
-    if (!projectDoc.exists()) {
-      throw new Error('Proyecto no encontrado')
-    }
-    return {
-      id: projectDoc.id,
-      ...projectDoc.data(),
-      createdAt: projectDoc.data().createdAt?.toDate().toISOString(),
-    } as Project
-  }
-)
 
 const projectsSlice = createSlice({
   name: 'projects',

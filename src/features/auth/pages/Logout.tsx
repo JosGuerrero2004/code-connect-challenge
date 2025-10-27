@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '../../../hooks/reduxHooks'
 import { useEffect } from 'react'
-import { logoutUser } from '../authSlice'
+import { logoutUser } from '../thunks/authThunks'
 
 function Logout() {
   const dispatch = useAppDispatch()
