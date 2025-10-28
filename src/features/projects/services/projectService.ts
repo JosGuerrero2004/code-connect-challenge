@@ -4,7 +4,7 @@ import { db } from '../../../config/firebase'
 
 export async function fetchProjectsByUserIdFunc(authorId: string): Promise<Project[]> {
   const queryConstraints: QueryConstraint[] = []
-  const projectsCollection = collection(db, 'pojects')
+  const projectsCollection = collection(db, 'projects')
 
   queryConstraints.push(where('authorId', '==', authorId))
 

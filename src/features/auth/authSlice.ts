@@ -14,7 +14,6 @@ const initialState: AuthState = {
   status: 'idle',
 }
 
-//Profile functions
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -25,99 +24,102 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      //login
+      // Login
       .addCase(loginUser.pending, (state) => {
         state.status = 'loading'
         state.error = null
       })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<User>) => {
+      .addCase(loginUser.fulfilled, (state, action) => {
         state.status = 'succeeded'
         state.user = action.payload
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = 'failed'
         state.error = action.payload as string
+        toast.error(state.error)
       })
-      //register
+
+      // Registro
       .addCase(registerUser.pending, (state) => {
         state.status = 'loading'
         state.error = null
       })
-      .addCase(registerUser.fulfilled, (state, action: PayloadAction<User>) => {
+      .addCase(registerUser.fulfilled, (state, action) => {
         state.status = 'succeeded'
         state.user = action.payload
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.status = 'failed'
         state.error = action.payload as string
+        toast.error(state.error)
       })
-      // logout
+
+      // Logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.status = 'succeeded'
         state.user = null
+        state.error = null
       })
 
-      // projects
-
+      // Proyectos propios
       .addCase(fetchUserProjects.pending, (state) => {
         state.status = 'loading'
         state.error = null
       })
       .addCase(fetchUserProjects.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        if (!action.payload) {
-          toast.error('No tienes proyectos')
-          return
-        }
-        if (!state.user?.userProfile) {
+        const profile = state.user?.userProfile
+        if (!profile) {
           toast.error('Perfil de usuario no encontrado, inicia sesión')
           return
         }
-
-        state.user.userProfile.ownedProjects = action.payload
+        profile.ownedProjects = action.payload ?? []
       })
       .addCase(fetchUserProjects.rejected, (state, action) => {
         state.status = 'failed'
         state.error = action.payload as string
+        toast.error(state.error)
       })
 
-      //liked
+      // Proyectos gustados
       .addCase(fetchUserLikedProjects.pending, (state) => {
         state.status = 'loading'
         state.error = null
       })
       .addCase(fetchUserLikedProjects.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.user!.userProfile!.likedProjects!.list = action.payload ?? null
+        const liked = state.user?.userProfile?.likedProjects
+        if (liked) liked.list = action.payload ?? []
       })
       .addCase(fetchUserLikedProjects.rejected, (state, action) => {
         state.status = 'failed'
         state.error =
           typeof action.payload === 'string'
             ? action.payload
-            : 'Error desconocido al buscar los proyectos gustados'
+            : 'Error al obtener proyectos gustados'
         toast.error(state.error)
       })
 
+      // Proyectos compartidos
       .addCase(fetchUserSharedProjects.pending, (state) => {
         state.status = 'loading'
         state.error = null
       })
       .addCase(fetchUserSharedProjects.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.error = null
-        state.user!.userProfile!.likedProjects!.list = action.payload ?? null
+        const shared = state.user?.userProfile?.sharedProjects
+        if (shared) shared.list = action.payload ?? []
       })
       .addCase(fetchUserSharedProjects.rejected, (state, action) => {
         state.status = 'failed'
         state.error =
           typeof action.payload === 'string'
             ? action.payload
-            : 'Error desconocido al buscar los proyectos compartidos'
+            : 'Error al obtener proyectos compartidos'
         toast.error(state.error)
       })
   },
 })
 
-export default authSlice.reducer
 export const { setUser } = authSlice.actions
+export default authSlice.reducer

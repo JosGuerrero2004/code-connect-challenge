@@ -8,6 +8,7 @@ import SobreNosotros from './pages/SobreNosotros'
 import FeedPage from './features/projects/pages/FeedPage'
 import ProjectPage from './features/projects/pages/ProjectPage'
 import { ToastContainer } from 'react-toastify'
+import ProfilePage from './features/profile/ProfilePage'
 
 function App() {
   return (
@@ -21,6 +22,14 @@ function App() {
           element={
             <RequireAuth>
               <Publicar />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path='/perfil'
+          element={
+            <RequireAuth>
+              <ProfilePage />
             </RequireAuth>
           }
         />

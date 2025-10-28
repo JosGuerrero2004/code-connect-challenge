@@ -1,12 +1,13 @@
 import { useLocation, useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks'
 import MainLayout from '../../../components/MainLayout'
-import { fetchProjectById, setSelectedProject } from '../redux/projectsSlice'
+import { setSelectedProject } from '../redux/projectsSlice'
 import { useEffect } from 'react'
 import { fetchComments } from '../comments/commentsSlice'
 import CommentsSection from '../comments/components/CommentsSection'
 import ProjectHeader from '../components/ProjectHeader'
 import CodeViewer from '../components/CodeViewer'
+import { fetchProjectById } from '../thunks/projectThunks'
 
 const ProjectPage = () => {
   const { id } = useParams()
