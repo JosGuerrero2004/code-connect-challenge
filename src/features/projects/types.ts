@@ -12,7 +12,7 @@ export interface Project {
   commentsCount: number
   shares: number
   createdAt: string
-  code:string
+  code: string
 }
 
 export interface ProjectsState {

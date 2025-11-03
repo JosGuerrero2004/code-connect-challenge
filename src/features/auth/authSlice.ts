@@ -7,6 +7,7 @@ import {
   fetchUserProjects,
   fetchUserSharedProjects,
 } from './thunks/userProfileThunks'
+import { toggleLikeThunk, toggleShareThunk } from './thunks/userInteractionsThunk'
 
 const initialState: AuthState = {
   user: null,
@@ -116,6 +117,36 @@ const authSlice = createSlice({
           typeof action.payload === 'string'
             ? action.payload
             : 'Error al obtener proyectos compartidos'
+        toast.error(state.error)
+      })
+
+      // Interacciones del usuario (like, share, etc.)
+      .addCase(toggleLikeThunk.pending, (state) => {
+        state.status = 'loading'
+        state.error = null
+      })
+      .addCase(toggleLikeThunk.fulfilled, (state) => {
+        state.status = 'succeeded'
+        state.error = null
+      })
+      .addCase(toggleLikeThunk.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error =
+          typeof action.payload === 'string' ? action.payload : 'error al dar like a este proyecto'
+        toast.error(state.error)
+      })
+      .addCase(toggleShareThunk.pending, (state) => {
+        state.status = 'loading'
+        state.error = null
+      })
+      .addCase(toggleShareThunk.fulfilled, (state) => {
+        state.status = 'succeeded'
+        state.error = null
+      })
+      .addCase(toggleShareThunk.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error =
+          typeof action.payload === 'string' ? action.payload : 'error al compartir este proyecto'
         toast.error(state.error)
       })
   },

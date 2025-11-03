@@ -22,6 +22,18 @@ const projectsSlice = createSlice({
   name: 'projects',
   initialState,
   reducers: {
+    updateProjectLikes: (state, action: PayloadAction<{ projectId: string; delta: number }>) => {
+      const project = state.items.find((p) => p.id === action.payload.projectId)
+      if (project) {
+        project.likes += action.payload.delta
+      }
+    },
+    updateProjectShares: (state, action: PayloadAction<{ projectId: string; delta: number }>) => {
+      const project = state.items.find((p) => p.id === action.payload.projectId)
+      if (project) {
+        project.shares += action.payload.delta
+      }
+    },
     setSelectedProject: setSelectedProjectLocal,
     addFilterTag: (state, action: PayloadAction<string>) => {
       if (action.payload === 'all') {
@@ -103,6 +115,13 @@ const projectsSlice = createSlice({
   },
 })
 
-export const { setSelectedProject, addFilterTag, removeFilterTag, filterBySearch, sortRecent } =
-  projectsSlice.actions
+export const {
+  updateProjectLikes,
+  setSelectedProject,
+  addFilterTag,
+  removeFilterTag,
+  filterBySearch,
+  sortRecent,
+  updateProjectShares,
+} = projectsSlice.actions
 export default projectsSlice.reducer
