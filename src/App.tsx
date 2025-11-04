@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import Login from './features/auth/pages/LoginPage'
 import Register from './features/auth/pages/RegisterPage'
-import Publicar from './pages/Publicar'
+import Publicar from './features/projects/pages/Publicar'
 import Logout from './features/auth/pages/Logout'
 import RequireAuth from './routes/RequireAuth'
 import SobreNosotros from './pages/SobreNosotros'

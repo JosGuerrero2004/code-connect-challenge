@@ -24,6 +24,7 @@ export interface ProjectsState {
   selectedProject: Project | null
   hasFetched: boolean
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
+  tags: string[]
 }
 
 export interface CommentsState {
