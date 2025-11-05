@@ -9,8 +9,17 @@ import FeedPage from './features/projects/pages/FeedPage'
 import ProjectPage from './features/projects/pages/ProjectPage'
 import { ToastContainer } from 'react-toastify'
 import ProfilePage from './features/profile/ProfilePage'
+import { useAppDispatch } from './hooks/reduxHooks'
+import { useEffect } from 'react'
+import { checkAuthState } from './features/auth/thunks/authThunks'
 
 function App() {
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    dispatch(checkAuthState())
+  }, [dispatch])
+
   return (
     <>
       <ToastContainer />

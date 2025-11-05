@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import MainLayout from '../../../components/MainLayout'
-import { useAppDispatch } from '../../../hooks/reduxHooks'
+import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks'
 import { createNewProject } from '../thunks/projectThunks'
 import { uploadImageToCloudinary } from '../services/projectService'
 import { toast } from 'react-toastify'
@@ -17,10 +17,13 @@ const Publicar = () => {
   const navigate = useNavigate()
   const [showSearchBar, setShowSearchBar] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [tags, setTags] = useState<string[]>(['React'])
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const dispatch = useAppDispatch()
+
+  const availableTags = useAppSelector((state) => state.projects.tags)
 
   const {
     register,
@@ -52,23 +55,30 @@ const Publicar = () => {
     setValue('banner', null)
   }
 
-  const addTag = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()])
+  const addTag = (tag: string) => {
+    if (tag.trim() && !selectedTags.includes(tag.trim())) {
+      setSelectedTags([...selectedTags, tag.trim()])
       setTagInput('')
+      setShowSuggestions(false)
     }
   }
 
   const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove))
+    setSelectedTags(selectedTags.filter((tag) => tag !== tagToRemove))
   }
+
+  const filteredTags = availableTags.filter(
+    (tag) => tag.toLowerCase().includes(tagInput.toLowerCase()) && !selectedTags.includes(tag)
+  )
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
     const projectData = {
       ...data,
-      tags,
+      tags: selectedTags.map((tag) => {
+        if (availableTags.includes(tag)) return tag
+        else return tag.toLowerCase()
+      }),
     }
     let bannerURL = ''
 
@@ -253,7 +263,7 @@ const Publicar = () => {
 
                   {/* Tags existentes */}
                   <div className='flex flex-wrap gap-2 mb-3'>
-                    {tags.map((tag, index) => (
+                    {selectedTags.map((tag, index) => (
                       <span
                         key={index}
                         className='inline-flex items-center px-3 py-1.5 bg-grisClaro/20 text-offwhite rounded-md text-sm'
@@ -271,25 +281,63 @@ const Publicar = () => {
                     ))}
                   </div>
 
-                  {/* Input para agregar tags */}
-                  <div className='flex gap-2'>
-                    <input
-                      type='text'
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyUp={(e) => e.key === 'Enter' && addTag(e)}
-                      disabled={isSubmitting}
-                      placeholder='Front-end'
-                      className='flex-1 px-4 py-2 bg-grisClaro/20 border border-grisClaro/30 rounded-lg focus:outline-none focus:border-verdeDestaque focus:ring-1 focus:ring-verdeDestaque text-offwhite placeholder-grisClaro/50 disabled:opacity-50 disabled:cursor-not-allowed'
-                    />
-                    <button
-                      type='button'
-                      onClick={addTag}
-                      disabled={isSubmitting}
-                      className='px-4 py-2 bg-grisOscuro border border-grisClaro/30 rounded-lg hover:bg-grisClaro/10 transition text-offwhite disabled:opacity-50 disabled:cursor-not-allowed'
-                    >
-                      Agregar
-                    </button>
+                  {/* Input para agregar tags con autocomplete */}
+                  <div className='relative'>
+                    <div className='flex gap-2'>
+                      <input
+                        type='text'
+                        value={tagInput}
+                        onChange={(e) => {
+                          setTagInput(e.target.value)
+                          setShowSuggestions(true)
+                        }}
+                        onKeyUp={(e) => {
+                          if (e.key === 'Enter' && filteredTags.length > 0) {
+                            addTag(filteredTags[0])
+                          }
+                        }}
+                        onFocus={() => setShowSuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                        disabled={isSubmitting}
+                        placeholder='Buscar o escribir etiqueta...'
+                        className='flex-1 px-4 py-2 bg-grisClaro/20 border border-grisClaro/30 rounded-lg focus:outline-none focus:border-verdeDestaque focus:ring-1 focus:ring-verdeDestaque text-offwhite placeholder-grisClaro/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                      />
+                      <button
+                        type='button'
+                        onClick={() => addTag(tagInput)}
+                        disabled={isSubmitting || !tagInput.trim()}
+                        className='px-4 py-2 bg-grisOscuro border border-grisClaro/30 rounded-lg hover:bg-grisClaro/10 transition text-offwhite disabled:opacity-50 disabled:cursor-not-allowed'
+                      >
+                        Agregar
+                      </button>
+                    </div>
+
+                    {/* Sugerencias de tags */}
+                    {showSuggestions && tagInput && filteredTags.length > 0 && (
+                      <div className='absolute z-10 w-full mt-1 bg-grisOscuro border border-grisClaro/30 rounded-lg shadow-lg max-h-48 overflow-y-auto'>
+                        {filteredTags.slice(0, 10).map((tag, index) => (
+                          <button
+                            key={index}
+                            type='button'
+                            onClick={() => addTag(tag)}
+                            className='w-full px-4 py-2 text-left text-offwhite hover:bg-grisClaro/20 transition first:rounded-t-lg last:rounded-b-lg'
+                          >
+                            <span className='text-verdeDestaque mr-2'>#</span>
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Mensaje cuando no hay resultados */}
+                    {showSuggestions && tagInput && filteredTags.length === 0 && (
+                      <div className='absolute z-10 w-full mt-1 bg-grisOscuro border border-grisClaro/30 rounded-lg shadow-lg p-3'>
+                        <p className='text-grisClaro text-sm'>
+                          No se encontró "{tagInput}". Presiona "Agregar" para crear una nueva
+                          etiqueta.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { Project, ProjectsState } from '../../../features/projects/types'
 import { fetchProjectById, fetchProjects } from '../thunks/projectThunks'
+import { getUniqueTags } from '../services/projectService'
 
 const initialState: ProjectsState = {
   items: [],
@@ -11,6 +12,7 @@ const initialState: ProjectsState = {
   selectedProject: null,
   hasFetched: false,
   status: 'idle',
+  tags: [],
 }
 
 const setSelectedProjectLocal = (state: ProjectsState, action: PayloadAction<Project>) => {
@@ -22,6 +24,9 @@ const projectsSlice = createSlice({
   name: 'projects',
   initialState,
   reducers: {
+    setTags: (state, action: PayloadAction<string[]>) => {
+      state.tags = action.payload
+    },
     updateProjectLikes: (state, action: PayloadAction<{ projectId: string; delta: number }>) => {
       const project = state.items.find((p) => p.id === action.payload.projectId)
       if (project) {
@@ -92,6 +97,7 @@ const projectsSlice = createSlice({
         if (state.filtered.length === 0) {
           state.filtered = action.payload
         }
+        state.tags = getUniqueTags(action.payload)
         state.hasFetched = true
       })
       .addCase(fetchProjects.rejected, (state) => {

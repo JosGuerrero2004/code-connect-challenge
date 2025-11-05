@@ -8,6 +8,7 @@ import {
 import { auth } from '../../../config/firebase'
 import { createUserProfile, fetchUserProfile } from '../services/userProfileService'
 import type { User } from '../types/auth'
+import { onAuthStateChanged } from 'firebase/auth/cordova'
 
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
@@ -54,4 +55,30 @@ export const loginUser = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
   await signOut(auth)
+})
+
+export const checkAuthState = createAsyncThunk('auth/checkAuthState', async () => {
+  return new Promise<User | null>((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      unsubscribe() // evitamos múltiples llamadas
+      if (firebaseUser) {
+        try {
+          const userProfile = await fetchUserProfile(firebaseUser.uid)
+          if (!userProfile) {
+            return resolve(null)
+          }
+          resolve({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email!,
+            userProfile,
+          })
+        } catch (error) {
+          console.error('Error al recuperar perfil:', error)
+          resolve(null)
+        }
+      } else {
+        resolve(null)
+      }
+    })
+  })
 })

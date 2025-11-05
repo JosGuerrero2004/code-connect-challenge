@@ -41,3 +41,35 @@ export async function fetchProjectsByIds(ids: string[]): Promise<Project[]> {
 
   return projectDocs.filter((project): project is Project => project !== null)
 }
+
+/**
+ * Sube una imagen a Cloudinary y devuelve su URL pública.
+ * @param file Archivo de imagen (File o Blob)
+ * @returns URL de descarga de la imagen
+ */
+export async function uploadImageToCloudinary(file: File): Promise<string> {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('upload_preset', 'codeconnect')
+
+  const res = await fetch('https://api.cloudinary.com/v1_1/divyjjshl/image/upload', {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (!res.ok) {
+    throw new Error('Error al subir imagen a Cloudinary')
+  }
+
+  const data = await res.json()
+  return data.secure_url // URL pública de la imagen
+}
+
+/**
+ * Extrae un conjunto único de tags desde una lista de proyectos.
+ * @param projects Lista de proyectos
+ * @returns lista de tags únicos
+ */
+export function getUniqueTags(projects: Project[]): string[] {
+  return [...new Set(projects.flatMap((p) => p.tags))]
+}

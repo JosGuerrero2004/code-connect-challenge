@@ -1,21 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import MainLayout from '../../components/MainLayout'
-import { Camera, Edit2 } from 'lucide-react'
+import { Camera, Edit2, Loader2 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks'
 import ProjectCard from '../projects/components/ProjectCard'
 import {
   fetchUserProjects,
   fetchUserLikedProjects,
   fetchUserSharedProjects,
+  updateUserCascade,
 } from '../auth/thunks/userProfileThunks'
+import { uploadImageToCloudinary } from '../projects/services/projectService'
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<'proyectos' | 'aprobados' | 'compartidos'>('proyectos')
   const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const dispatch = useAppDispatch()
 
   const userProfile = useAppSelector((state) => state.auth.user?.userProfile)
-  // const status = useAppSelector((state) => state.auth.status)
+  const updateStatus = useAppSelector((state) => state.auth.status)
 
   useEffect(() => {
     if (userProfile?.uid) {
@@ -24,6 +29,53 @@ const ProfilePage = () => {
       dispatch(fetchUserSharedProjects())
     }
   }, [dispatch, userProfile?.uid])
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen válido')
+      return
+    }
+
+    // Validar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('La imagen no debe superar los 5MB')
+      return
+    }
+
+    try {
+      setIsUploadingPhoto(true)
+
+      // 1. Subir imagen a Cloudinary
+      const photoURL = await uploadImageToCloudinary(file)
+
+      // 2. Actualizar en cascada (perfil, proyectos y comentarios)
+      await dispatch(
+        updateUserCascade({
+          authorPhoto: photoURL,
+        })
+      ).unwrap()
+
+      // Opcional: Mostrar mensaje de éxito
+      console.log('Foto de perfil actualizada exitosamente')
+    } catch (error) {
+      console.error('Error al actualizar foto de perfil:', error)
+      alert('Hubo un error al actualizar tu foto de perfil. Intenta nuevamente.')
+    } finally {
+      setIsUploadingPhoto(false)
+      // Limpiar el input para permitir seleccionar el mismo archivo de nuevo
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
 
   if (!userProfile) return <div className='text-white p-8'>Cargando perfil...</div>
 
@@ -56,9 +108,28 @@ const ProfilePage = () => {
                     {userProfile.displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <button className='absolute bottom-2 right-2 w-10 h-10 rounded-full bg-[#00ff88] flex items-center justify-center hover:bg-[#00dd77] transition-colors shadow-lg'>
-                  <Camera className='w-5 h-5 text-black' />
+
+                {/* Botón de cámara con loader */}
+                <button
+                  onClick={handlePhotoClick}
+                  disabled={isUploadingPhoto}
+                  className='absolute bottom-2 right-2 w-10 h-10 rounded-full bg-[#00ff88] flex items-center justify-center hover:bg-[#00dd77] transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
+                >
+                  {isUploadingPhoto ? (
+                    <Loader2 className='w-5 h-5 text-black animate-spin' />
+                  ) : (
+                    <Camera className='w-5 h-5 text-black' />
+                  )}
                 </button>
+
+                {/* Input oculto para seleccionar archivo */}
+                <input
+                  ref={fileInputRef}
+                  type='file'
+                  accept='image/*'
+                  onChange={handlePhotoChange}
+                  className='hidden'
+                />
               </div>
 
               {/* Info */}
@@ -90,6 +161,13 @@ const ProfilePage = () => {
               Editar
             </button>
           </div>
+
+          {/* Indicador de actualización */}
+          {updateStatus === 'loading' && (
+            <div className='mb-4 p-3 bg-blue-900/30 border border-blue-500/50 rounded-lg text-blue-300 text-sm'>
+              Actualizando perfil...
+            </div>
+          )}
 
           {/* Tabs */}
           <div className='flex gap-8 mb-8'>

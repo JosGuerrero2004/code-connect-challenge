@@ -1,11 +1,12 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify'
 import type { AuthState, User } from './types/auth'
-import { loginUser, logoutUser, registerUser } from './thunks/authThunks'
+import { checkAuthState, loginUser, logoutUser, registerUser } from './thunks/authThunks'
 import {
   fetchUserLikedProjects,
   fetchUserProjects,
   fetchUserSharedProjects,
+  updateUserCascade,
 } from './thunks/userProfileThunks'
 import { toggleLikeThunk, toggleShareThunk } from './thunks/userInteractionsThunk'
 
@@ -146,7 +147,40 @@ const authSlice = createSlice({
       .addCase(toggleShareThunk.rejected, (state, action) => {
         state.status = 'failed'
         state.error =
-          typeof action.payload === 'string' ? action.payload : 'error al compartir este proyecto'
+          typeof action.payload === 'string' ? action.payload : 'error al dar like a este proyecto'
+        toast.error(state.error)
+      })
+      //persistencia de sesion
+      .addCase(checkAuthState.pending, (state) => {
+        state.status = 'loading'
+      })
+      .addCase(checkAuthState.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.user = action.payload
+      })
+      .addCase(checkAuthState.rejected, (state) => {
+        state.status = 'failed'
+        state.user = null
+      })
+      //actualizacion en cascada del usuario puede ir aqui
+      .addCase(updateUserCascade.pending, (state) => {
+        state.status = 'loading'
+        state.error = null
+      })
+      .addCase(updateUserCascade.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        const { authorPhoto, authorDisplayName } = action.payload
+
+        if (state.user && state.user.userProfile) {
+          // Actualiza solo los campos válidos del perfil
+          state.user.userProfile.photoURL = authorPhoto ?? state.user.userProfile.photoURL
+          state.user.userProfile.displayName =
+            authorDisplayName ?? state.user.userProfile.displayName
+        }
+      })
+      .addCase(updateUserCascade.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.payload as string
         toast.error(state.error)
       })
   },
