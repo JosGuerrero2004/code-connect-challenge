@@ -6,6 +6,8 @@ import {
 import type { RootState } from '../../../redux/store/store'
 import type { User } from 'firebase/auth'
 import { cascadeUserUpdate, type CascadeResult } from '../services/userProfileService'
+import { doc, updateDoc } from 'firebase/firestore'
+import { db } from '../../../config/firebase'
 
 export const fetchUserProjects = createAsyncThunk(
   'userProfile/fetchUsersProjects',
@@ -116,6 +118,46 @@ export const updateUserCascade = createAsyncThunk(
     } catch (error) {
       console.error('Error en actualización en cascada:', error)
       return rejectWithValue('No se pudo actualizar el perfil del usuario')
+    }
+  }
+)
+
+type UserProfileUpdates = {
+  bio?: string
+}
+
+/**
+ * Actualiza campos del perfil de usuario que NO requieren actualización en cascada
+ * (como la bio, que no se muestra en proyectos ni comentarios)
+ */
+export const updateUserProfile = createAsyncThunk(
+  'auth/updateUserProfile',
+  async (updates: UserProfileUpdates, { getState, rejectWithValue }) => {
+    try {
+      const state = getState() as { auth: { user: { uid?: string } | null } }
+      const uid = state.auth.user?.uid
+
+      if (!uid) {
+        return rejectWithValue('Usuario no autenticado')
+      }
+
+      // Filtrar solo campos definidos
+      const filteredUpdates: Partial<UserProfileUpdates> = {}
+      if (updates.bio !== undefined) {
+        filteredUpdates.bio = updates.bio
+      }
+
+      // Actualizar solo el documento del usuario
+      const userRef = doc(db, 'users', uid)
+      await updateDoc(userRef, filteredUpdates)
+
+      return {
+        uid,
+        ...filteredUpdates,
+      }
+    } catch (error) {
+      console.error('Error al actualizar perfil:', error)
+      return rejectWithValue('No se pudo actualizar el perfil')
     }
   }
 )
